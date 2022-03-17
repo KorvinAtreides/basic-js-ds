@@ -44,35 +44,59 @@ class BinarySearchTree {
   find(data) {
     let copySubTree = this.tree;
     while (true) {
-      if (!copySubTree || copySubTree.previousData == data) return null;
+      if (!copySubTree) return null;
       if (copySubTree.data == data) return copySubTree;
-      if (copySubTree.data) {
-        copySubTree = copySubTree.data > data ? copySubTree.left : copySubTree.right;
-      } else {
-        copySubTree = copySubTree.previousData > data ? copySubTree.left : copySubTree.right;
-      }
+      copySubTree = copySubTree.data > data ? copySubTree.left : copySubTree.right;
     }
   }
 
   remove(data) {
     if (!this.find(data)) return null;
-    let copySubTree = this.tree;
-    if (copySubTree.data == data) {
-      copySubTree.data == undefined;
-      copySubTree.previousData = data;
-      return null;
-    }
+    let copyTree = this.tree;
+    let parentNode;
     while (true) {
-      if (copySubTree.left && copySubTree.left.data == data){
-        copySubTree.left.data = undefined;
-        copySubTree.left.previousData = data;
-        return null;
-      } else if (copySubTree.right && copySubTree.right.data == data){
-        copySubTree.right.data = undefined;
-        copySubTree.right.previousData = data;
+      if (copyTree.data == data) {
+        //no child nodes
+        if(!copyTree.left && !copyTree.right) {
+          if (!parentNode) {
+            this.tree = null;
+          } else if (parentNode.left && parentNode.left.data == data){
+            parentNode.left = null;
+          } else {
+            parentNode.right = null;
+          }
+          return null;
+        }
+        //one child node
+        if ((!copyTree.left && copyTree.right)||(copyTree.left && !copyTree.right)){
+          if (copyTree.right) {
+            copyTree.data = copyTree.right.data;
+            copyTree.left = copyTree.right.left;
+            copyTree.right = copyTree.right.right;
+          } else {
+            copyTree.data = copyTree.left.data;
+            copyTree.right = copyTree.left.right;
+            copyTree.left = copyTree.left.left;
+          }
+          return null;
+        }
+        //two child nodes
+        let copyMinNode = copyTree.right;
+        parentNode = copyMinNode;
+        while (copyMinNode.left) {
+          parentNode = copyMinNode;
+          copyMinNode = copyMinNode.left;
+        }
+        copyTree.data = copyMinNode.data;
+        if (parentNode === copyMinNode) {
+          copyTree.right = copyMinNode.right;
+        } else {
+          parentNode.left = copyMinNode.right;
+        }
         return null;
       }
-      copySubTree = copySubTree.data > data ? copySubTree.left : copySubTree.right;
+      parentNode = copyTree;
+      copyTree = copyTree.data > data ? copyTree.left : copyTree.right;
     }
   }
 
@@ -80,7 +104,7 @@ class BinarySearchTree {
     if (!this.tree) return null;
     let copySubTree = this.tree;
     while (true) {
-      if (!copySubTree.left || (!copySubTree.left.data &&!copySubTree.left.left)) return copySubTree.data;
+      if (!copySubTree.left) return copySubTree.data;
       copySubTree = copySubTree.left;
     }
   }
@@ -89,7 +113,7 @@ class BinarySearchTree {
     if (!this.tree) return null;
     let copySubTree = this.tree;
     while (true) {
-      if (!copySubTree.right|| (!copySubTree.right.data &&!copySubTree.right.right)) return copySubTree.data;
+      if (!copySubTree.right) return copySubTree.data;
       copySubTree = copySubTree.right;
     }
   }
